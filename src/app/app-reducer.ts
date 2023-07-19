@@ -13,19 +13,21 @@ const slice = createSlice({
     name: 'appReducer',
     initialState: initialState,
     reducers: {
-        setAppErrorAC(state, action:PayloadAction<{error: string | null}>) {
+        setAppErrorAC(state, action: PayloadAction<{ error: string | null }>) {
             state.error = action.payload.error
         },
-        setAppStatusAC(state, action:PayloadAction<{status: RequestStatusType}>) {
+        setAppStatusAC(state, action: PayloadAction<{ status: RequestStatusType }>) {
             state.status = action.payload.status
         },
-        setAppInitializedAC(state, action:PayloadAction<{value: boolean}>) {
+        setAppInitializedAC(state, action: PayloadAction<{ value: boolean }>) {
             state.isInitialized = action.payload.value
         },
 
     }
 })
 export const appReducer = slice.reducer
+
+
 // export const appReducer = (state: InitialStateType = initialState, action: ActionsType): InitialStateType => {
 //     switch (action.type) {
 //         case 'APP/SET-STATUS':
@@ -38,7 +40,6 @@ export const appReducer = slice.reducer
 //             return {...state}
 //     }
 // }
-
 export type RequestStatusType = 'idle' | 'loading' | 'succeeded' | 'failed'
 export type InitialStateType = {
     // происходит ли сейчас взаимодействие с сервером
@@ -49,9 +50,9 @@ export type InitialStateType = {
     isInitialized: boolean
 }
 
-export const {setAppErrorAC} = slice.actions
-export const {setAppStatusAC} = slice.actions
-export const {setAppInitializedAC} =  slice.actions
+
+export const {setAppErrorAC, setAppStatusAC, setAppInitializedAC} = slice.actions
+
 
 export const initializeAppTC = () => (dispatch: Dispatch) => {
     authAPI.me().then(res => {
@@ -61,7 +62,7 @@ export const initializeAppTC = () => (dispatch: Dispatch) => {
 
         }
 
-        dispatch(setAppInitializedAC({value:true}));
+        dispatch(setAppInitializedAC({value: true}));
     })
 }
 
