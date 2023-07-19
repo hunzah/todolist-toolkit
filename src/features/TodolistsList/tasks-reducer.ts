@@ -14,11 +14,11 @@ const slice = createSlice({
     initialState: initialState,
     reducers: {
         removeTaskAC(state, action: PayloadAction<{ taskId: string, todolistId: string }>) {
-            const tasks = state[action.payload.todolistId]
-            // @ts-ignore
-            const index = tasks.indexOf(t => t.id === action.payload.taskId)
+            const todolist = state[action.payload.todolistId]
+
+            const index = todolist.findIndex(t => t.id === action.payload.taskId)
             if (index > -1) {
-                tasks.splice(index, 1)
+                todolist.splice(index, 1)
             }
         },
         addTaskAC(state, action: PayloadAction<{ task: TaskType }>) {
@@ -26,8 +26,7 @@ const slice = createSlice({
         },
         updateTaskAC(state, action: PayloadAction<{ taskId: string, model: UpdateDomainTaskModelType, todolistId: string }>) {
             const tasks = state[action.payload.todolistId]
-            // @ts-ignore
-            const index = tasks.indexOf(t => t.id === action.payload.taskId)
+            const index = tasks.findIndex(t => t.id === action.payload.taskId)
             if (index > -1) {
                 tasks[index] = {...tasks[index], ...action.payload.model}
             }
@@ -98,6 +97,7 @@ export const fetchTasksTC = (todolistId: string) => (dispatch: Dispatch) => {
         })
 }
 export const removeTaskTC = (taskId: string, todolistId: string) => (dispatch: Dispatch) => {
+
     todolistsAPI.deleteTask(todolistId, taskId)
         .then(res => {
             const action = removeTaskAC({taskId: taskId, todolistId: todolistId})
