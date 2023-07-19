@@ -17,7 +17,7 @@ const slice = createSlice({
             const tasks = state[action.payload.todolistId]
             // @ts-ignore
             const index = tasks.indexOf(t => t.id === action.payload.taskId)
-            if (index > 1) {
+            if (index > -1) {
                 tasks.splice(index, 1)
             }
         },
@@ -39,15 +39,15 @@ const slice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(addTodolistAC, (state, action) => {
             state[action.payload.todolist.id] = []
-        }),
-            builder.addCase(removeTodolistAC, (state, action) => {
-                delete state[action.payload.id]
-            }),
-            builder.addCase(setTodolistsAC, (state, action) => {
-                action.payload.todolists.forEach(tl => {
-                    state[tl.id] = []
-                })
+        });
+        builder.addCase(removeTodolistAC, (state, action) => {
+            delete state[action.payload.id]
+        });
+        builder.addCase(setTodolistsAC, (state, action) => {
+            action.payload.todolists.forEach(tl => {
+                state[tl.id] = []
             })
+        });
     }
 })
 export const tasksReducer = slice.reducer
