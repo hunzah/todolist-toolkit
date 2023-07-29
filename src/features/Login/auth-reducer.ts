@@ -6,12 +6,10 @@ import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {AxiosError} from 'axios';
 
 
-export type RejectValueType = {
-    errors: string[];
-    fieldsErrors: FieldsErrorsType;
-}
 
-export const loginTC = createAsyncThunk<{ isLoggedIn: boolean }, LoginParamsType, { rejectValue?: RejectValueType }>
+
+export const loginTC = createAsyncThunk<{ isLoggedIn: boolean }, LoginParamsType,{rejectValue?: {
+        errors: string[], field: FieldsErrorsType[] }}>
 ('auth/login', async (data, thunkAPI) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
     try {
