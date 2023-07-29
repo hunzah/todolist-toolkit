@@ -15,13 +15,11 @@ import {loginTC} from './auth-reducer';
 import {AppRootStateType, useAppDispatch} from '../../app/store';
 import {Redirect} from 'react-router-dom';
 
-
 type ValuesType = {
     email: string,
     password: string,
     rememberMe: boolean,
 }
-
 
 export const Login = () => {
     const dispatch = useAppDispatch();
@@ -46,10 +44,11 @@ export const Login = () => {
             password: '',
             rememberMe: false,
         },
-        onSubmit: (values: ValuesType, formikHelpers: FormikHelpers<ValuesType>) => {
-            const res = dispatch(loginTC(values));
-            res === loginTC.rejected.type
-            formikHelpers.setFieldError('email', 'fuck, error')
+        onSubmit: async (values: ValuesType, formikHelpers: FormikHelpers<ValuesType>) => {
+            const res = await dispatch(loginTC(values));
+            if (res.type === loginTC.rejected.type){
+                formikHelpers.setFieldError('email', 'fuck, error')
+            }
         },
     });
 
