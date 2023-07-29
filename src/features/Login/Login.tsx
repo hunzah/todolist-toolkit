@@ -45,9 +45,13 @@ export const Login = () => {
             rememberMe: false,
         },
         onSubmit: async (values: ValuesType, formikHelpers: FormikHelpers<ValuesType>) => {
-            const res = await dispatch(loginTC(values));
-            if (res.type === loginTC.rejected.type){
-                formikHelpers.setFieldError('email', 'fuck, error')
+            const action = await dispatch(loginTC(values));
+            if (loginTC.rejected.match(action)) {
+                // @ts-ignore
+                if (action.payload.fieldsErrors.length === 0) {
+                    const error = action.payload?.fieldsErrors[0]
+                    formikHelpers.setFieldError(error.field, error:'fuck, error')
+                }
             }
         },
     });

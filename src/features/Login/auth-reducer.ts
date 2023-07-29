@@ -1,12 +1,14 @@
 import {Dispatch} from 'redux';
 import {setAppStatusAC} from '../../app/app-reducer';
-import {authAPI, LoginParamsType} from '../../api/todolists-api';
+import {authAPI, FieldsErrorsType, LoginParamsType} from '../../api/todolists-api';
 import {handleServerAppError, handleServerNetworkError} from '../../utils/error-utils';
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {AxiosError} from 'axios';
 
 
-export const loginTC = createAsyncThunk<{ isLoggedIn: boolean },LoginParamsType>('auth/login', async (data, thunkAPI) => {
+export const loginTC = createAsyncThunk<{ isLoggedIn: boolean },LoginParamsType,{rejectValue?:{
+        errors:string[], fieldsErrors:FieldsErrorsType[]
+    }}>('auth/login', async (data, thunkAPI) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
     try {
         const res = await authAPI.login(data)
