@@ -1,4 +1,3 @@
-import {Dispatch} from 'redux';
 import {setAppStatusAC} from '../../app/app-reducer';
 import {authAPI, FieldsErrorsType, LoginParamsType} from '../../api/todolists-api';
 import {handleServerAppError, handleServerNetworkError} from '../../utils/error-utils';
@@ -11,7 +10,7 @@ export const loginTC = createAsyncThunk<undefined, LoginParamsType, {
         errors: string[], field: FieldsErrorsType[]
     }
 }>
-('auth/login', async (data, thunkAPI  ) => {
+('auth/login', async (data, thunkAPI) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
     try {
         const res = await authAPI.login(data)
@@ -30,30 +29,24 @@ export const loginTC = createAsyncThunk<undefined, LoginParamsType, {
 })
 
 
-export const logoutTC = createAsyncThunk('auth/logOut', async (undefined, thunkAPI  ) => {
+export const logoutTC = createAsyncThunk('auth/logOut', async (undefined, thunkAPI) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
-     const res = await authAPI.logout()
-        try {
-            if (res.data.resultCode === 0) {
-                // thunkAPI.dispatch(setIsLoggedInAC({value: false}));
-                thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
-                return
-            } else {
-                handleServerAppError(res.data, thunkAPI.dispatch);
-                return thunkAPI.rejectWithValue({})
-            }
-        }
-        catch(err)  {
-         const error = err as {message:string}
-            handleServerNetworkError(error, thunkAPI.dispatch);
+    const res = await authAPI.logout()
+    try {
+        if (res.data.resultCode === 0) {
+            // thunkAPI.dispatch(setIsLoggedInAC({value: false}));
+            thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
+            return
+        } else {
+            handleServerAppError(res.data, thunkAPI.dispatch);
             return thunkAPI.rejectWithValue({})
         }
+    } catch (err) {
+        const error = err as { message: string }
+        handleServerNetworkError(error, thunkAPI.dispatch);
+        return thunkAPI.rejectWithValue({})
+    }
 })
-
-
-
-
-
 
 
 const initialState: any = {
@@ -83,7 +76,6 @@ export const authReducer = slice.reducer;
 
 export const {setIsLoggedInAC} = slice.actions;
 // thunks
-
 
 
 // export const logoutTC_ = () => (dispatch: Dispatch) => {
