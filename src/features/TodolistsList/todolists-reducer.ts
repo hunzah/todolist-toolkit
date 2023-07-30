@@ -2,9 +2,26 @@ import {todolistsAPI, TodolistType} from '../../api/todolists-api';
 import {Dispatch} from 'redux';
 import {RequestStatusType, setAppStatusAC} from '../../app/app-reducer';
 import {handleServerNetworkError} from '../../utils/error-utils';
-import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 const initialState: Array<TodolistDomainType> = [];
+
+
+export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists',async(undefined,thunkAPI)=>{
+    thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
+    const res = await todolistsAPI.getTodolists()
+      try {
+          // thunkAPI.dispatch(setTodolistsAC({todolists: res.data}));
+          thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
+          return {todolists: res.data};
+      }
+        catch (err){
+            const error = err as { message: string }
+            handleServerNetworkError(error, thunkAPI.dispatch);
+            return {} as { todolists:TodolistType[] }
+        }
+})
+
 
 const slice = createSlice({
     name: 'todolists',
@@ -35,7 +52,12 @@ const slice = createSlice({
         setTodolistsAC(state, action: PayloadAction<{ todolists: Array<TodolistType> }>) {
             return action.payload.todolists.map((tl) => ({...tl, filter: 'all', entityStatus: 'idle'}));
         },
-    },
+    },extraReducers: (builder)=>{
+        builder.addCase(fetchTodolistsTC.fulfilled,(state, action)=>{
+            return action.payload.todolists.map((tl) => ({...tl, filter: 'all', entityStatus: 'idle'}));
+        })
+}
+
 });
 export const todolistsReducer = slice.reducer;
 
@@ -45,26 +67,25 @@ export const {
     changeTodolistTitleAC,
     changeTodolistFilterAC,
     changeTodolistEntityStatusAC,
-    setTodolistsAC,
+    setTodolistsAC
 } = slice.actions;
 
 
-
 // thunks
-export const fetchTodolistsTC = () => {
-    return (dispatch: ThunkDispatch) => {
-        dispatch(setAppStatusAC({status: 'loading'}));
-        todolistsAPI
-            .getTodolists()
-            .then((res) => {
-                dispatch(setTodolistsAC({todolists: res.data}));
-                dispatch(setAppStatusAC({status: 'succeeded'}));
-            })
-            .catch((error) => {
-                handleServerNetworkError(error, dispatch);
-            });
-    };
-};
+// export const fetchTodolistsTC_ = () => {
+//     return (dispatch: ThunkDispatch) => {
+//         dispatch(setAppStatusAC({status: 'loading'}));
+//         todolistsAPI
+//             .getTodolists()
+//             .then((res) => {
+//                 dispatch(setTodolistsAC({todolists: res.data}));
+//                 dispatch(setAppStatusAC({status: 'succeeded'}));
+//             })
+//             .catch((error) => {
+//                 handleServerNetworkError(error, dispatch);
+//             });
+//     };
+// };
 export const removeTodolistTC = (todolistId: string) => {
     return (dispatch: ThunkDispatch) => {
         //изменим глобальный статус приложения, чтобы вверху полоса побежала

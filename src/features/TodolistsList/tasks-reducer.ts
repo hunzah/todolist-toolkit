@@ -1,4 +1,11 @@
-import {TaskPriorities, TaskStatuses, TaskType, todolistsAPI, UpdateTaskModelType} from '../../api/todolists-api';
+import {
+    TaskPriorities,
+    TaskStatuses,
+    TaskType,
+    todolistsAPI,
+    TodolistType,
+    UpdateTaskModelType
+} from '../../api/todolists-api';
 import {Dispatch} from 'redux';
 import {AppRootStateType} from '../../app/store';
 import {setAppStatusAC} from '../../app/app-reducer';
@@ -113,7 +120,7 @@ const slice = createSlice({
             delete state[action.payload.id];
         });
         builder.addCase(setTodolistsAC, (state, action) => {
-            action.payload.todolists.forEach((tl) => {
+            action.payload.todolists.forEach((tl: TodolistType) => {
                 state[tl.id] = [];
             });
         });
@@ -145,7 +152,7 @@ const slice = createSlice({
 export const tasksReducer = slice.reducer;
 
 // actions
-export const {addTaskAC, updateTaskAC} = slice.actions;
+// export const {addTaskAC, updateTaskAC} = slice.actions;
 
 // thunks
 // export const addTaskTC = (title: string, todolistId: string) => (dispatch: Dispatch) => {
@@ -166,40 +173,40 @@ export const {addTaskAC, updateTaskAC} = slice.actions;
 //             handleServerNetworkError(error, dispatch);
 //         });
 // };
-export const updateTaskTC_ =
-    (taskId: string, domainModel: UpdateDomainTaskModelType, todolistId: string) =>
-        (dispatch: ThunkDispatch, getState: () => AppRootStateType) => {
-            const state = getState();
-            const task = state.tasks[todolistId].find((t) => t.id === taskId);
-            if (!task) {
-                //throw new Error("task not found in the state");
-                console.warn('task not found in the state');
-                return;
-            }
-            const apiModel: UpdateTaskModelType = {
-                deadline: task.deadline,
-                description: task.description,
-                priority: task.priority,
-                startDate: task.startDate,
-                title: task.title,
-                status: task.status,
-                ...domainModel,
-            };
-
-            todolistsAPI
-                .updateTask(todolistId, taskId, apiModel)
-                .then((res) => {
-                    if (res.data.resultCode === 0) {
-                        const action = updateTaskAC({taskId: taskId, model: domainModel, todolistId: todolistId});
-                        dispatch(action);
-                    } else {
-                        handleServerAppError(res.data, dispatch);
-                    }
-                })
-                .catch((error) => {
-                    handleServerNetworkError(error, dispatch);
-                });
-        };
+// export const updateTaskTC_ =
+//     (taskId: string, domainModel: UpdateDomainTaskModelType, todolistId: string) =>
+//         (dispatch: ThunkDispatch, getState: () => AppRootStateType) => {
+//             const state = getState();
+//             const task = state.tasks[todolistId].find((t) => t.id === taskId);
+//             if (!task) {
+//                 //throw new Error("task not found in the state");
+//                 console.warn('task not found in the state');
+//                 return;
+//             }
+//             const apiModel: UpdateTaskModelType = {
+//                 deadline: task.deadline,
+//                 description: task.description,
+//                 priority: task.priority,
+//                 startDate: task.startDate,
+//                 title: task.title,
+//                 status: task.status,
+//                 ...domainModel,
+//             };
+//
+//             todolistsAPI
+//                 .updateTask(todolistId, taskId, apiModel)
+//                 .then((res) => {
+//                     if (res.data.resultCode === 0) {
+//                         const action = updateTaskAC({taskId: taskId, model: domainModel, todolistId: todolistId});
+//                         dispatch(action);
+//                     } else {
+//                         handleServerAppError(res.data, dispatch);
+//                     }
+//                 })
+//                 .catch((error) => {
+//                     handleServerNetworkError(error, dispatch);
+//                 });
+//         };
 
 // types
 type addTaskParamType = { title: string, todolistId: string };
