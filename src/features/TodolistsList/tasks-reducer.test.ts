@@ -1,5 +1,5 @@
 import {addTaskTC, fetchTasksTC, removeTaskTC, tasksReducer, TasksStateType, updateTaskTC} from './tasks-reducer';
-import {addTodolistAC, fetchTodolistsTC, removeTodolistAC} from './todolists-reducer';
+import {addTodolistAC, removeTodolistAC} from './todolists-reducer';
 import {TaskPriorities, TaskStatuses} from '../../api/todolists-api';
 
 let startState: TasksStateType = {};
@@ -108,7 +108,7 @@ test('correct task should be added to correct array', () => {
         startDate: '',
         id: 'id exists',
     }
-    const action = addTaskTC.fulfilled({task}, '', {title: 'juce', todolistId: 'todolistId2'});
+    const action = addTaskTC.fulfilled({task}, '', {title: task.title, todolistId: task.todoListId});
 
     const endState = tasksReducer(startState, action);
 
@@ -120,10 +120,14 @@ test('correct task should be added to correct array', () => {
 });
 
 test('status of specified task should be changed', () => {
-    const params = {
-        taskId: '2', domainModel: {status: TaskStatuses.New}, todolistId: 'todolistId2'
-    }
-    const action = updateTaskTC({taskId: '2', domainModel: {status: TaskStatuses.New}, todolistId: 'todolistId2'});
+    const updateModel = {
+        param: {
+            taskId: '2',
+            domainModel: { status: TaskStatuses.New },
+            todolistId: 'todolistId2'
+        }
+    };
+    const action = updateTaskTC.fulfilled(updateModel,'requesId',updateModel.param);
 
 
     // @ts-ignore
@@ -134,9 +138,14 @@ test('status of specified task should be changed', () => {
 });
 
 test('title of specified task should be changed', () => {
-    const action = updateTaskTC({
-        taskId: '2', domainModel: {title: 'yogurt'}, todolistId: 'todolistId2'
-    },);
+    const updateModel = {
+        param: {
+            taskId: '2',
+            domainModel: { title: 'yogurt'},
+            todolistId: 'todolistId2'
+        }
+    };
+    const action = updateTaskTC.fulfilled(updateModel,'requestid',updateModel.param);
 
     // @ts-ignore
     const endState = tasksReducer(startState, action);

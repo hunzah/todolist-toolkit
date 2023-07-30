@@ -7,11 +7,10 @@ import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 const initialState: Array<TodolistDomainType> = [];
 
 
-export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists', async (undefined: undefined, thunkAPI) => {
+export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists', async (param, thunkAPI) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
-
+    const res = await todolistsAPI.getTodolists()
     try {
-        const res = await todolistsAPI.getTodolists()
         // thunkAPI.dispatch(setTodolistsAC({todolists: res.data}));
         thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
         return {todolists: res.data};
@@ -19,7 +18,7 @@ export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists', asy
     } catch (err) {
         const error = err as { message: string }
         handleServerNetworkError(error, thunkAPI.dispatch);
-        return thunkAPI.rejectWithValue({})
+        return thunkAPI.rejectWithValue(null)
     }
 })
 
@@ -68,14 +67,11 @@ const slice = createSlice({
             const index = state.findIndex((tl) => tl.id === action.payload.id);
             state[index].entityStatus = action.payload.status;
         },
-        setTodolistsAC(state, action: PayloadAction<{ todolists: Array<TodolistType> }>) {
-            return action.payload.todolists.map((tl) => ({...tl, filter: 'all', entityStatus: 'idle'}));
-        },
+
     },
     extraReducers: builder => {
         builder.addCase(fetchTodolistsTC.fulfilled, (state, action) => {
-
-            state = action.payload.todolists.map((tl) => ({...tl, filter: 'all', entityStatus: 'idle'}));
+            return action.payload.todolists.map((tl) => ({...tl, filter: 'all', entityStatus: 'idle'}));
         })
         builder.addCase(removeTodolistTC.fulfilled, (state, action) => {
             const index = state.findIndex((tl) => tl.id === action.payload.id);
@@ -98,7 +94,6 @@ export const {
     changeTodolistTitleAC,
     changeTodolistFilterAC,
     changeTodolistEntityStatusAC,
-    setTodolistsAC
 } = slice.actions;
 
 
