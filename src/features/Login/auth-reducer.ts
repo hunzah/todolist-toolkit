@@ -11,12 +11,11 @@ export const loginTC = createAsyncThunk<{ isLoggedIn: boolean }, LoginParamsType
         errors: string[], field: FieldsErrorsType[]
     }
 }>
-('auth/login', async (data, thunkAPI) => {
+('auth/login', async (data, thunkAPI  ) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
     try {
         const res = await authAPI.login(data)
         if (res.data.resultCode === 0) {
-            // thunkAPI.dispatch(setIsLoggedInAC({value: true}));
             thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
             return {isLoggedIn: true}
         } else {
@@ -56,22 +55,6 @@ export const authReducer = slice.reducer;
 export const {setIsLoggedInAC} = slice.actions;
 // thunks
 
-// export const loginTC_ = (data: LoginParamsType) => (dispatch: Dispatch) => {
-//     dispatch(setAppStatusAC({status: 'loading'}));
-//     authAPI
-//         .login(data)
-//         .then((res) => {
-//             if (res.data.resultCode === 0) {
-//                 dispatch(setIsLoggedInAC({value: true}));
-//                 dispatch(setAppStatusAC({status: 'loading'}));
-//             } else {
-//                 handleServerAppError(res.data, dispatch);
-//             }
-//         })
-//         .catch((error) => {
-//             handleServerNetworkError(error, dispatch);
-//         });
-// };
 
 
 export const logoutTC = () => (dispatch: Dispatch) => {

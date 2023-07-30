@@ -14,7 +14,7 @@ import {useSelector} from 'react-redux';
 import {loginTC} from './auth-reducer';
 import {AppRootStateType, useAppDispatch} from '../../app/store';
 import {Redirect} from 'react-router-dom';
-import f from '/src/styles/formikStyles.module.css'
+import f from './../../styles/formikStyles.module.css'
 
 type ValuesType = {
     email: string,
