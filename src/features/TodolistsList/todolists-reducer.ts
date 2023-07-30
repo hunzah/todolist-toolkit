@@ -7,19 +7,28 @@ import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 const initialState: Array<TodolistDomainType> = [];
 
 
-export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists',async(undefined,thunkAPI)=>{
+export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists', async (undefined, thunkAPI) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
     const res = await todolistsAPI.getTodolists()
-      try {
-          // thunkAPI.dispatch(setTodolistsAC({todolists: res.data}));
-          thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
-          return {todolists: res.data};
-      }
-        catch (err){
-            const error = err as { message: string }
-            handleServerNetworkError(error, thunkAPI.dispatch);
-            return {} as { todolists:TodolistType[] }
-        }
+    try {
+        // thunkAPI.dispatch(setTodolistsAC({todolists: res.data}));
+        thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
+        return {todolists: res.data};
+    } catch (err) {
+        const error = err as { message: string }
+        handleServerNetworkError(error, thunkAPI.dispatch);
+        return {} as { todolists: TodolistType[] }
+    }
+})
+export const removeTodolistTC = createAsyncThunk('todolists/removeTodolist', async (todolistId: string, thunkAPI) => {
+    thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
+    thunkAPI.dispatch(changeTodolistEntityStatusAC({id: todolistId, status: 'loading'}));
+
+    await todolistsAPI.deleteTodolist(todolistId)
+    // thunkAPI.dispatch(removeTodolistAC({id: todolistId}));
+    thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
+    return {id: todolistId}
+
 })
 
 
@@ -36,7 +45,6 @@ const slice = createSlice({
         addTodolistAC(state, action: PayloadAction<{ todolist: TodolistType }>) {
             state.unshift({...action.payload.todolist, filter: 'all', entityStatus: 'idle'});
         },
-
         changeTodolistTitleAC(state, action: PayloadAction<{ id: string; title: string }>) {
             const index = state.findIndex((tl) => tl.id === action.payload.id);
             state[index].title = action.payload.title;
@@ -52,11 +60,18 @@ const slice = createSlice({
         setTodolistsAC(state, action: PayloadAction<{ todolists: Array<TodolistType> }>) {
             return action.payload.todolists.map((tl) => ({...tl, filter: 'all', entityStatus: 'idle'}));
         },
-    },extraReducers: (builder)=>{
-        builder.addCase(fetchTodolistsTC.fulfilled,(state, action)=>{
+    },
+    extraReducers: (builder) => {
+        builder.addCase(fetchTodolistsTC.fulfilled, (state, action) => {
             return action.payload.todolists.map((tl) => ({...tl, filter: 'all', entityStatus: 'idle'}));
         })
-}
+        builder.addCase(removeTodolistTC.fulfilled, (state, action) => {
+            const index = state.findIndex((tl) => tl.id === action.payload.id);
+            if (index > -1) {
+                state.splice(index, 1);
+            }
+        })
+    }
 
 });
 export const todolistsReducer = slice.reducer;
@@ -72,7 +87,7 @@ export const {
 
 
 // thunks
-// export const fetchTodolistsTC_ = () => {
+// export const fetchTodolistsTC = () => {
 //     return (dispatch: ThunkDispatch) => {
 //         dispatch(setAppStatusAC({status: 'loading'}));
 //         todolistsAPI
@@ -86,19 +101,19 @@ export const {
 //             });
 //     };
 // };
-export const removeTodolistTC = (todolistId: string) => {
-    return (dispatch: ThunkDispatch) => {
-        //изменим глобальный статус приложения, чтобы вверху полоса побежала
-        dispatch(setAppStatusAC({status: 'loading'}));
-        //изменим статус конкретного тудулиста, чтобы он мог задизеблить что надо
-        dispatch(changeTodolistEntityStatusAC({id: todolistId, status: 'loading'}));
-        todolistsAPI.deleteTodolist(todolistId).then((res) => {
-            dispatch(removeTodolistAC({id: todolistId}));
-            //скажем глобально приложению, что асинхронная операция завершена
-            dispatch(setAppStatusAC({status: 'succeeded'}));
-        });
-    };
-};
+// export const removeTodolistTC_ = (todolistId: string) => {
+//     return (dispatch: ThunkDispatch) => {
+//         //изменим глобальный статус приложения, чтобы вверху полоса побежала
+//         dispatch(setAppStatusAC({status: 'loading'}));
+//         //изменим статус конкретного тудулиста, чтобы он мог задизеблить что надо
+//         dispatch(changeTodolistEntityStatusAC({id: todolistId, status: 'loading'}));
+//         todolistsAPI.deleteTodolist(todolistId).then((res) => {
+//             dispatch(removeTodolistAC({id: todolistId}));
+//             //скажем глобально приложению, что асинхронная операция завершена
+//             dispatch(setAppStatusAC({status: 'succeeded'}));
+//         });
+//     };
+// };
 export const addTodolistTC = (title: string) => {
     return (dispatch: ThunkDispatch) => {
         dispatch(setAppStatusAC({status: 'loading'}));

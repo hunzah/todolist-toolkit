@@ -43,18 +43,18 @@ export const addTaskTC = createAsyncThunk('tasks/addTask',
 
         const res = await todolistsAPI.createTask(param.todolistId, param.title)
         try {
-            if (res.data.resultCode === 0) {
-                const task = res.data.data.item;
-                const action = {task: task}
-                thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
-                return action
-            } else {
-                handleServerAppError(res.data, thunkAPI.dispatch);
-                return {} as { task: TaskType; }
-            }
         } catch (err) {
             const error = err as { message: string }
             handleServerNetworkError(error, thunkAPI.dispatch);
+            return {} as { task: TaskType; }
+        }
+        if (res.data.resultCode === 0) {
+            const task = res.data.data.item;
+            const action = {task: task}
+            thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
+            return action
+        } else {
+            handleServerAppError(res.data, thunkAPI.dispatch);
             return {} as { task: TaskType; }
         }
 
