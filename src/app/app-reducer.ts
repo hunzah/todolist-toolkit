@@ -3,18 +3,12 @@ import { setIsLoggedInAC } from "../features/Login/auth-reducer";
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 
-export const initializeAppTC = createAsyncThunk<{ isInitialized: true  },void>('appReducer/initializeApp',async( undefined, thunkAPI)=>{
+export const initializeAppTC = createAsyncThunk('appReducer/initializeApp',async( param, thunkAPI)=>{
 
   const res = await authAPI.me()
     if (res.data.resultCode === 0) {
       thunkAPI.dispatch(setIsLoggedInAC({ value: true }));
     }
-    else {
-      thunkAPI.dispatch(setIsLoggedInAC({ value: false }));
-    }
-    // thunkAPI.dispatch(setAppInitializedAC({ value: true }));
-    return{ isInitialized: true };
-
 })
 
 const initialState: InitialStateType = {
@@ -33,30 +27,16 @@ const slice = createSlice({
     setAppStatusAC(state, action: PayloadAction<{ status: RequestStatusType }>) {
       state.status = action.payload.status;
     },
-    setAppInitializedAC(state, action: PayloadAction<{ value: boolean }>) {
-      state.isInitialized = action.payload.value;
-    },
   },
-  extraReducers: (builder)=>{
+  extraReducers: builder => {
     builder.addCase(initializeAppTC.fulfilled,(state, action)=>{
-      state.isInitialized = action.payload.isInitialized;
+      state.isInitialized = true;
     })
   }
 });
 export const appReducer = slice.reducer;
 
-
-export type RequestStatusType = "idle" | "loading" | "succeeded" | "failed";
-export type InitialStateType = {
-  // происходит ли сейчас взаимодействие с сервером
-  status: RequestStatusType;
-  // если ошибка какая-то глобальная произойдёт - мы запишем текст ошибки сюда
-  error: string | null;
-  // true когда приложение проинициализировалось (проверили юзера, настройки получили и т.д.)
-  isInitialized: boolean;
-};
-
-export const { setAppErrorAC, setAppStatusAC, setAppInitializedAC } = slice.actions;
+export const { setAppErrorAC, setAppStatusAC} = slice.actions;
 
 // export const initializeAppTC_ = () => (dispatch: Dispatch) => {
 //   authAPI.me().then((res) => {
@@ -70,3 +50,12 @@ export const { setAppErrorAC, setAppStatusAC, setAppInitializedAC } = slice.acti
 //     dispatch(setAppInitializedAC({ value: true }));
 //   });
 // };
+
+
+//types
+export type RequestStatusType = "idle" | "loading" | "succeeded" | "failed";
+export type InitialStateType = {
+  status: RequestStatusType;
+  error: string | null;
+  isInitialized: boolean;
+};

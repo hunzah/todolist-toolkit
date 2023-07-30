@@ -7,19 +7,22 @@ import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 const initialState: Array<TodolistDomainType> = [];
 
 
-export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists', async (undefined, thunkAPI) => {
+export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists', async (undefined: undefined, thunkAPI) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
-    const res = await todolistsAPI.getTodolists()
+
     try {
+        const res = await todolistsAPI.getTodolists()
         // thunkAPI.dispatch(setTodolistsAC({todolists: res.data}));
         thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
         return {todolists: res.data};
+
     } catch (err) {
         const error = err as { message: string }
         handleServerNetworkError(error, thunkAPI.dispatch);
-        return {} as { todolists: TodolistType[] }
+        return thunkAPI.rejectWithValue({})
     }
 })
+
 export const removeTodolistTC = createAsyncThunk('todolists/removeTodolist', async (todolistId: string, thunkAPI) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
     thunkAPI.dispatch(changeTodolistEntityStatusAC({id: todolistId, status: 'loading'}));
@@ -29,6 +32,14 @@ export const removeTodolistTC = createAsyncThunk('todolists/removeTodolist', asy
     thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
     return {id: todolistId}
 
+})
+
+export const addTodolistTC = createAsyncThunk('todolists/addTodolist', async (title: string, thunkAPI) => {
+    thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
+    const res = await todolistsAPI.createTodolist(title)
+    // thunkAPI.dispatch(addTodolistAC({todolist: res.data.data.item}));
+    thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
+    return {todolist: res.data.data.item}
 })
 
 
@@ -61,15 +72,20 @@ const slice = createSlice({
             return action.payload.todolists.map((tl) => ({...tl, filter: 'all', entityStatus: 'idle'}));
         },
     },
-    extraReducers: (builder) => {
+    extraReducers: builder => {
         builder.addCase(fetchTodolistsTC.fulfilled, (state, action) => {
-            return action.payload.todolists.map((tl) => ({...tl, filter: 'all', entityStatus: 'idle'}));
+
+            state = action.payload.todolists.map((tl) => ({...tl, filter: 'all', entityStatus: 'idle'}));
         })
         builder.addCase(removeTodolistTC.fulfilled, (state, action) => {
             const index = state.findIndex((tl) => tl.id === action.payload.id);
             if (index > -1) {
                 state.splice(index, 1);
             }
+        })
+        builder.addCase(addTodolistTC.fulfilled, (state, action) => {
+            state.unshift({...action.payload.todolist, filter: 'all', entityStatus: 'idle'});
+
         })
     }
 
@@ -101,7 +117,7 @@ export const {
 //             });
 //     };
 // };
-// export const removeTodolistTC_ = (todolistId: string) => {
+// export const removeTodolistTC = (todolistId: string) => {
 //     return (dispatch: ThunkDispatch) => {
 //         //изменим глобальный статус приложения, чтобы вверху полоса побежала
 //         dispatch(setAppStatusAC({status: 'loading'}));
@@ -114,15 +130,16 @@ export const {
 //         });
 //     };
 // };
-export const addTodolistTC = (title: string) => {
-    return (dispatch: ThunkDispatch) => {
-        dispatch(setAppStatusAC({status: 'loading'}));
-        todolistsAPI.createTodolist(title).then((res) => {
-            dispatch(addTodolistAC({todolist: res.data.data.item}));
-            dispatch(setAppStatusAC({status: 'succeeded'}));
-        });
-    };
-};
+
+// export const addTodolistTC_ = (title: string) => {
+//     return (dispatch: ThunkDispatch) => {
+//         dispatch(setAppStatusAC({status: 'loading'}));
+//         todolistsAPI.createTodolist(title).then((res) => {
+//             dispatch(addTodolistAC({todolist: res.data.data.item}));
+//             dispatch(setAppStatusAC({status: 'succeeded'}));
+//         });
+//     };
+// };
 export const changeTodolistTitleTC = (id: string, title: string) => {
     return (dispatch: Dispatch) => {
         todolistsAPI.updateTodolist(id, title).then((res) => {
