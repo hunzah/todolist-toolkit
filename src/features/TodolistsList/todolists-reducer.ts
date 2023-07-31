@@ -36,9 +36,13 @@ export const removeTodolistTC = createAsyncThunk('todolists/removeTodolist', asy
 export const addTodolistTC = createAsyncThunk('todolists/addTodolist', async (title: string, thunkAPI) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
     const res = await todolistsAPI.createTodolist(title)
-    // thunkAPI.dispatch(addTodolistAC({todolist: res.data.data.item}));
     thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
     return {todolist: res.data.data.item}
+})
+
+export const changeTodolistTitleTC = createAsyncThunk('todolists/addTodolist', async (param: { id: string, title: string }, thunkAPI) => {
+    await todolistsAPI.updateTodolist(param.id, param.title)
+    return {id: param.id, title: param.title}
 })
 
 
@@ -97,45 +101,7 @@ export const {
 } = slice.actions;
 
 
-// thunks
-// export const fetchTodolistsTC = () => {
-//     return (dispatch: ThunkDispatch) => {
-//         dispatch(setAppStatusAC({status: 'loading'}));
-//         todolistsAPI
-//             .getTodolists()
-//             .then((res) => {
-//                 dispatch(setTodolistsAC({todolists: res.data}));
-//                 dispatch(setAppStatusAC({status: 'succeeded'}));
-//             })
-//             .catch((error) => {
-//                 handleServerNetworkError(error, dispatch);
-//             });
-//     };
-// };
-// export const removeTodolistTC = (todolistId: string) => {
-//     return (dispatch: ThunkDispatch) => {
-//         //изменим глобальный статус приложения, чтобы вверху полоса побежала
-//         dispatch(setAppStatusAC({status: 'loading'}));
-//         //изменим статус конкретного тудулиста, чтобы он мог задизеблить что надо
-//         dispatch(changeTodolistEntityStatusAC({id: todolistId, status: 'loading'}));
-//         todolistsAPI.deleteTodolist(todolistId).then((res) => {
-//             dispatch(removeTodolistAC({id: todolistId}));
-//             //скажем глобально приложению, что асинхронная операция завершена
-//             dispatch(setAppStatusAC({status: 'succeeded'}));
-//         });
-//     };
-// };
-
-// export const addTodolistTC_ = (title: string) => {
-//     return (dispatch: ThunkDispatch) => {
-//         dispatch(setAppStatusAC({status: 'loading'}));
-//         todolistsAPI.createTodolist(title).then((res) => {
-//             dispatch(addTodolistAC({todolist: res.data.data.item}));
-//             dispatch(setAppStatusAC({status: 'succeeded'}));
-//         });
-//     };
-// };
-export const changeTodolistTitleTC = (id: string, title: string) => {
+export const changeTodolistTitleTC_ = (id: string, title: string) => {
     return (dispatch: Dispatch) => {
         todolistsAPI.updateTodolist(id, title).then((res) => {
             dispatch(changeTodolistTitleAC({id: id, title: title}));
@@ -150,4 +116,3 @@ export type TodolistDomainType = TodolistType & {
     filter: FilterValuesType;
     entityStatus: RequestStatusType;
 };
-type ThunkDispatch = Dispatch;
