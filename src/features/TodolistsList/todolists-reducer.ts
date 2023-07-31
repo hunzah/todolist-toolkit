@@ -39,12 +39,10 @@ export const addTodolistTC = createAsyncThunk('todolists/addTodolist', async (ti
     thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
     return {todolist: res.data.data.item}
 })
-
-export const changeTodolistTitleTC = createAsyncThunk('todolists/addTodolist', async (param: { id: string, title: string }, thunkAPI) => {
+export const changeTodolistTitleTC_ = createAsyncThunk('todolists/addTodolist', async (param: { id: string, title: string }, thunkAPI) => {
     await todolistsAPI.updateTodolist(param.id, param.title)
     return {id: param.id, title: param.title}
 })
-
 
 const slice = createSlice({
     name: 'todolists',
@@ -87,6 +85,10 @@ const slice = createSlice({
             state.unshift({...action.payload.todolist, filter: 'all', entityStatus: 'idle'});
 
         })
+        // builder.addCase(changeTodolistTitleTC.fulfilled, (state, action) => {
+        //     const index = state.findIndex((tl) => tl.id === action.payload.id);
+        //     state[index].title = action.payload.title;
+        // })
     }
 
 });
@@ -101,7 +103,7 @@ export const {
 } = slice.actions;
 
 
-export const changeTodolistTitleTC_ = (id: string, title: string) => {
+export const changeTodolistTitleTC = (id: string, title: string) => {
     return (dispatch: Dispatch) => {
         todolistsAPI.updateTodolist(id, title).then((res) => {
             dispatch(changeTodolistTitleAC({id: id, title: title}));
