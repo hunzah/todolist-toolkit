@@ -39,7 +39,8 @@ export const addTodolistTC = createAsyncThunk('todolists/addTodolist', async (ti
     thunkAPI.dispatch(setAppStatusAC({status: 'succeeded'}));
     return {todolist: res.data.data.item}
 })
-export const changeTodolistTitleTC_ = createAsyncThunk('todolists/addTodolist', async (param: { id: string, title: string }, thunkAPI) => {
+
+export const changeTodolistTitleTC = createAsyncThunk('todolists/changeTodolistTitle', async (param: { id: string, title: string }) => {
     await todolistsAPI.updateTodolist(param.id, param.title)
     return {id: param.id, title: param.title}
 })
@@ -48,19 +49,6 @@ const slice = createSlice({
     name: 'todolists',
     initialState: initialState,
     reducers: {
-        removeTodolistAC(state, action: PayloadAction<{ id: string }>) {
-            const index = state.findIndex((tl) => tl.id === action.payload.id);
-            if (index > -1) {
-                state.splice(index, 1);
-            }
-        },
-        addTodolistAC(state, action: PayloadAction<{ todolist: TodolistType }>) {
-            state.unshift({...action.payload.todolist, filter: 'all', entityStatus: 'idle'});
-        },
-        changeTodolistTitleAC(state, action: PayloadAction<{ id: string; title: string }>) {
-            const index = state.findIndex((tl) => tl.id === action.payload.id);
-            state[index].title = action.payload.title;
-        },
         changeTodolistFilterAC(state, action: PayloadAction<{ id: string; filter: FilterValuesType }>) {
             const index = state.findIndex((tl) => tl.id === action.payload.id);
             state[index].filter = action.payload.filter;
@@ -85,31 +73,25 @@ const slice = createSlice({
             state.unshift({...action.payload.todolist, filter: 'all', entityStatus: 'idle'});
 
         })
-        // builder.addCase(changeTodolistTitleTC.fulfilled, (state, action) => {
-        //     const index = state.findIndex((tl) => tl.id === action.payload.id);
-        //     state[index].title = action.payload.title;
-        // })
+        builder.addCase(changeTodolistTitleTC.fulfilled, (state, action) => {
+            const index = state.findIndex((tl) => tl.id === action.payload.id);
+            state[index].title = action.payload.title;
+        })
     }
 
 });
 export const todolistsReducer = slice.reducer;
 
-export const {
-    removeTodolistAC,
-    addTodolistAC,
-    changeTodolistTitleAC,
-    changeTodolistFilterAC,
-    changeTodolistEntityStatusAC,
-} = slice.actions;
+export const {changeTodolistFilterAC, changeTodolistEntityStatusAC} = slice.actions;
 
 
-export const changeTodolistTitleTC = (id: string, title: string) => {
-    return (dispatch: Dispatch) => {
-        todolistsAPI.updateTodolist(id, title).then((res) => {
-            dispatch(changeTodolistTitleAC({id: id, title: title}));
-        });
-    };
-};
+// export const changeTodolistTitleTC = (id: string, title: string) => {
+//     return (dispatch: Dispatch) => {
+//         todolistsAPI.updateTodolist(id, title).then((res) => {
+//             dispatch(changeTodolistTitleAC({id: id, title: title}));
+//         });
+//     };
+// };
 
 
 //types
