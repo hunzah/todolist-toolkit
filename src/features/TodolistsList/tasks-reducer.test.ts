@@ -123,11 +123,11 @@ test('status of specified task should be changed', () => {
     const updateModel = {
         param: {
             taskId: '2',
-            domainModel: { status: TaskStatuses.New },
+            domainModel: {status: TaskStatuses.New},
             todolistId: 'todolistId2'
         }
     };
-    const action = updateTaskTC.fulfilled(updateModel,'requesId',updateModel.param);
+    const action = updateTaskTC.fulfilled(updateModel, 'requesId', updateModel.param);
 
 
     // @ts-ignore
@@ -141,11 +141,11 @@ test('title of specified task should be changed', () => {
     const updateModel = {
         param: {
             taskId: '2',
-            domainModel: { title: 'yogurt'},
+            domainModel: {title: 'yogurt'},
             todolistId: 'todolistId2'
         }
     };
-    const action = updateTaskTC.fulfilled(updateModel,'requestid',updateModel.param);
+    const action = updateTaskTC.fulfilled(updateModel, 'requestid', updateModel.param);
 
     // @ts-ignore
     const endState = tasksReducer(startState, action);
